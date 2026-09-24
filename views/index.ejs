@@ -1,11 +1,37 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GuitarGuide</title>
+
+    <link rel="stylesheets" href="/stylesheets/style.css">
+</head>
+
+<body>
+
+   <%- include('./partials/header')%>
+    <main>
+
+        <section class="principal">
+
+            <h2>Encontre a guitarra ideal para seu nível</h2>
+
+            <p>
+                Informações sobre guitarras, preços,
+                características e níveis de experiência.
+            </p>
+
+            <a href="/niveis.html" class="botao">
+                Conhecer os níveis
+            </a>
+
+        </section>
+
+    </main>
+
+</body>
+
 </html>
