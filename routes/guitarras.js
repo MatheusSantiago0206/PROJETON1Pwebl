@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const db = require("../public/javascripts/sqlite");
+const db = require("../database/sqlite");
 
 router.get("/", (req, res) => {
 
@@ -15,7 +15,6 @@ router.get("/", (req, res) => {
         }
 
         res.json(resultados);
-
     });
 
 });
