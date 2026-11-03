@@ -1,38 +1,32 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<%- include('partials/header') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="p-5 mb-4 hero-bg rounded-3 text-center">
+  <h1 class="display-5 fw-bold">Encontre a guitarra ideal para o seu nível</h1>
+  <p class="col-md-8 fs-4 mx-auto">Guia completo com recomendações de preços, modelos e características divididos por nível de experiência.</p>
+  <a href="/niveis" class="btn btn-warning btn-lg fw-bold">Ver por Nível</a>
+</div>
 
-    
+<h2 class="mb-3">Destaques</h2>
+<div class="row">
+  <% if (typeof guitarras !== 'undefined' && guitarras && guitarras.length > 0) { %>
+    <% guitarras.forEach(guitarra => { %>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm card-guitar">
+          <img src="<%= guitarra.imagem %>" class="card-img-top" style="height: 200px; object-fit: cover;" alt="<%= guitarra.nome %>">
+          <div class="card-body">
+            <span class="badge bg-secondary text-uppercase mb-2"><%= guitarra.nivel %></span>
+            <h5 class="card-title"><%= guitarra.nome %></h5>
+            <p class="card-text text-muted"><%= guitarra.descricao %></p>
+            <p class="fw-bold text-success fs-5">R$ <%= guitarra.preco ? guitarra.preco.toFixed(2) : '0.00' %></p>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <div class="col-12">
+      <p class="alert alert-info">Nenhuma guitarra encontrada no momento.</p>
+    </div>
+  <% } %>
+</div>
 
-    <link rel="stylesheets" href="/stylesheets/style.css">
-    <title>GuitarGuide</title>
-</head>
-
-<body>
-
-   <%- include('./partials/header')%>
-    <main>
-
-        <section class="principal">
-
-            <h2>Encontre a guitarra ideal para seu nível</h2>
-
-            <p>
-                Informações sobre guitarras, preços,
-                características e níveis de experiência.
-            </p>
-
-            <a href="/niveis.html" class="botao">
-                Conhecer os níveis
-            </a>
-
-        </section>
-
-    </main>
-
-</body>
-
-</html>
+<%- include('partials/footer') %>
