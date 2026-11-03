@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+
+<div class="py-3">
+  <h1 class="mb-4">Guitarras - <%= typeof nomeNivel !== 'undefined' ? nomeNivel : 'Nível' %></h1>
+  
+  <div class="row">
+    <% if (typeof guitarras !== 'undefined' && guitarras && guitarras.length > 0) { %>
+      <% guitarras.forEach(guitarra => { %>
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow-sm card-guitar">
+            <img src="<%= guitarra.imagem %>" class="card-img-top" style="height: 220px; object-fit: cover;" alt="<%= guitarra.nome %>">
+            <div class="card-body">
+              <span class="badge bg-secondary text-uppercase mb-2"><%= guitarra.nivel %></span>
+              <h5 class="card-title"><%= guitarra.nome %></h5>
+              <p class="card-text text-muted"><%= guitarra.descricao %></p>
+              <p class="fw-bold text-success fs-5">R$ <%= guitarra.preco ? guitarra.preco.toFixed(2) : '0.00' %></p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="col-12">
+        <p class="alert alert-warning">Nenhuma guitarra encontrada para este nível.</p>
+      </div>
+    <% } %>
+  </div>
+  
+  <a href="/niveis" class="btn btn-outline-secondary mt-3">&larr; Voltar aos Níveis</a>
+</div>
+
+<%- include('partials/footer') %>
