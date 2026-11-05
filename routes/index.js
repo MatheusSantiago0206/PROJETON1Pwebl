@@ -90,4 +90,23 @@ router.post('/comentario/:id/reacao', function(req, res) {
   });
 });
 
+/* GET API de Busca de Guitarras (Retorna JSON) */
+router.get('/api/guitarras/busca', function(req, res) {
+  const termoBusca = req.query.q || '';
+  let sql = "SELECT * FROM guitarras";
+  let params = [];
+
+  if (termoBusca) {
+    sql += " WHERE nome LIKE ? OR descricao LIKE ?";
+    params = [`%${termoBusca}%`, `%${termoBusca}%`];
+  }
+
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: "Erro ao buscar dados." });
+    }
+    res.json(rows || []);
+  });
+});
+
 module.exports = router;
