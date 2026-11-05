@@ -10,9 +10,19 @@ const NIVEIS = {
   'profissional': 'Profissional / Mestre'
 };
 
-/* GET Home (com busca) */
+/* GET Home */
 router.get('/', function(req, res) {
-  const termoBusca = req.query.busca || '';
+  db.all("SELECT * FROM guitarras", [], (err, rows) => {
+    res.render('index', { 
+      title: 'GuitarGuide - Home', 
+      guitarras: rows || []
+    });
+  });
+});
+
+/* GET API de Busca de Guitarras (JSON) */
+router.get('/api/guitarras/busca', function(req, res) {
+  const termoBusca = req.query.q || '';
   let sql = "SELECT * FROM guitarras";
   let params = [];
 
@@ -22,11 +32,10 @@ router.get('/', function(req, res) {
   }
 
   db.all(sql, params, (err, rows) => {
-    res.render('index', { 
-      title: 'GuitarGuide - Home', 
-      guitarras: rows || [],
-      busca: termoBusca
-    });
+    if (err) {
+      return res.status(500).json({ error: "Erro ao buscar dados." });
+    }
+    res.json(rows || []);
   });
 });
 
@@ -54,58 +63,18 @@ router.get('/guitarras', function(req, res) {
   });
 });
 
-/* POST Like / Dislike na Guitarra (Post) */
+/* POST Like / Dislike na Guitarra (via API) */
 router.post('/guitarra/:id/reacao', function(req, res) {
-  const { id } = req.params;
-  const { tipo } = req.body; // 'like' ou 'dislike'
-  const campo = tipo === 'like' ? 'likes' : 'dislikes';
-
-  db.run(`UPDATE guitarras SET ${campo} = ${campo} + 1 WHERE id = ?`, [id], () => {
-    res.redirect('back');
-  });
-});
-
-/* POST Adicionar Comentário */
-router.post('/guitarra/:id/comentar', function(req, res) {
-  const { id } = req.params;
-  const { autor, texto } = req.body;
-
-  if (autor && texto) {
-    db.run("INSERT INTO comentarios (guitarra_id, autor, texto) VALUES (?, ?, ?)", [id, autor, texto], () => {
-      res.redirect('back');
-    });
-  } else {
-    res.redirect('back');
-  }
-});
-
-/* POST Like / Dislike no Comentário */
-router.post('/comentario/:id/reacao', function(req, res) {
   const { id } = req.params;
   const { tipo } = req.body;
   const campo = tipo === 'like' ? 'likes' : 'dislikes';
 
-  db.run(`UPDATE comentarios SET ${campo} = ${campo} + 1 WHERE id = ?`, [id], () => {
-    res.redirect('back');
-  });
-});
-
-/* GET API de Busca de Guitarras (Retorna JSON) */
-router.get('/api/guitarras/busca', function(req, res) {
-  const termoBusca = req.query.q || '';
-  let sql = "SELECT * FROM guitarras";
-  let params = [];
-
-  if (termoBusca) {
-    sql += " WHERE nome LIKE ? OR descricao LIKE ?";
-    params = [`%${termoBusca}%`, `%${termoBusca}%`];
-  }
-
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: "Erro ao buscar dados." });
-    }
-    res.json(rows || []);
+  db.run(`UPDATE guitarras SET ${campo} = ${campo} + 1 WHERE id = ?`, [id], (err) => {
+    if (err) return res.status(500).json({ error: "Erro no banco" });
+    
+    db.all("SELECT likes, dislikes FROM guitarras WHERE id = ?", [id], (err, rows) => {
+      res.json(rows[0] || { likes: 0, dislikes: 0 });
+    });
   });
 });
 
