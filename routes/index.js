@@ -58,7 +58,6 @@ router.post('/api/guitarra/:id/comentarios', function(req, res) {
   db.run("INSERT INTO comentarios (guitarra_id, autor, texto) VALUES (?, ?, ?)", [id, autor, texto], function(err) {
     if (err) return res.status(500).json({ error: "Erro ao salvar comentário." });
     
-    // Retorna os comentários atualizados
     db.all("SELECT * FROM comentarios WHERE guitarra_id = ? ORDER BY id DESC", [id], (err, rows) => {
       res.json(rows || []);
     });
@@ -89,13 +88,14 @@ router.get('/guitarras', function(req, res) {
   });
 });
 
-/* POST Like / Dislike na Guitarra (via API) */
+/* POST Like / Dislike na Guitarra (com suporte a remoção/troca de voto) */
 router.post('/guitarra/:id/reacao', function(req, res) {
   const { id } = req.params;
-  const { tipo } = req.body;
+  const { tipo, acao } = req.body;
   const campo = tipo === 'like' ? 'likes' : 'dislikes';
+  const operacao = acao === 'remover' ? '- 1' : '+ 1';
 
-  db.run(`UPDATE guitarras SET ${campo} = ${campo} + 1 WHERE id = ?`, [id], (err) => {
+  db.run(`UPDATE guitarras SET ${campo} = MAX(0, ${campo} ${operacao}) WHERE id = ?`, [id], (err) => {
     if (err) return res.status(500).json({ error: "Erro no banco" });
     
     db.all("SELECT likes, dislikes FROM guitarras WHERE id = ?", [id], (err, rows) => {
