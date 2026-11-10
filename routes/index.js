@@ -32,10 +32,36 @@ router.get('/api/guitarras/busca', function(req, res) {
   }
 
   db.all(sql, params, (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: "Erro ao buscar dados." });
-    }
+    if (err) return res.status(500).json({ error: "Erro ao buscar dados." });
     res.json(rows || []);
+  });
+});
+
+/* GET API de Comentários de uma Guitarra */
+router.get('/api/guitarra/:id/comentarios', function(req, res) {
+  const { id } = req.params;
+  db.all("SELECT * FROM comentarios WHERE guitarra_id = ? ORDER BY id DESC", [id], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Erro ao buscar comentários." });
+    res.json(rows || []);
+  });
+});
+
+/* POST Adicionar Comentário via API */
+router.post('/api/guitarra/:id/comentarios', function(req, res) {
+  const { id } = req.params;
+  const { autor, texto } = req.body;
+
+  if (!autor || !texto) {
+    return res.status(400).json({ error: "Autor e texto são obrigatórios." });
+  }
+
+  db.run("INSERT INTO comentarios (guitarra_id, autor, texto) VALUES (?, ?, ?)", [id, autor, texto], function(err) {
+    if (err) return res.status(500).json({ error: "Erro ao salvar comentário." });
+    
+    // Retorna os comentários atualizados
+    db.all("SELECT * FROM comentarios WHERE guitarra_id = ? ORDER BY id DESC", [id], (err, rows) => {
+      res.json(rows || []);
+    });
   });
 });
 
