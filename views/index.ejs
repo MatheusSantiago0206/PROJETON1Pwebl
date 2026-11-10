@@ -13,7 +13,7 @@
 
 <h2 class="mb-3" id="titulo-resultados">Destaques</h2>
 
-<!-- CONTAINER QUE SERÁ ATUALIZADO VIA API -->
+<!-- CONTAINER DE GUITARRAS -->
 <div class="row" id="container-guitarras">
   <% if (typeof guitarras !== 'undefined' && guitarras && guitarras.length > 0) { %>
     <% guitarras.forEach(guitarra => { %>
@@ -28,16 +28,16 @@
               <p class="fw-bold text-success fs-5">R$ <%= guitarra.preco ? guitarra.preco.toFixed(2) : '0.00' %></p>
             </div>
 
+            <!-- BOTÕES COM ONCLICK (SEM FORMULÁRIO) -->
             <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
-              <form action="/guitarra/<%= guitarra.id %>/reacao" method="POST" class="d-inline">
-                <input type="hidden" name="tipo" value="like">
-                <button type="submit" class="btn btn-sm btn-outline-success">👍 <%= guitarra.likes || 0 %></button>
-              </form>
-              <form action="/guitarra/<%= guitarra.id %>/reacao" method="POST" class="d-inline">
-                <input type="hidden" name="tipo" value="dislike">
-                <button type="submit" class="btn btn-sm btn-outline-danger">👎 <%= guitarra.dislikes || 0 %></button>
-              </form>
+              <button type="button" onclick="darReacao('<%= guitarra.id %>', 'like')" class="btn btn-sm btn-outline-success">
+                👍 <span id="likes-<%= guitarra.id %>"><%= guitarra.likes || 0 %></span>
+              </button>
+              <button type="button" onclick="darReacao('<%= guitarra.id %>', 'dislike')" class="btn btn-sm btn-outline-danger">
+                👎 <span id="dislikes-<%= guitarra.id %>"><%= guitarra.dislikes || 0 %></span>
+              </button>
             </div>
+
           </div>
         </div>
       </div>
@@ -49,13 +49,33 @@
   <% } %>
 </div>
 
-<!-- SCRIPT JS PARA CONSUMIR A API DE BUSCA EM TEMPO REAL -->
 <script>
   const campoBusca = document.getElementById('campo-busca');
   const btnBusca = document.getElementById('btn-busca');
   const containerGuitarras = document.getElementById('container-guitarras');
   const tituloResultados = document.getElementById('titulo-resultados');
 
+  // Função que chama a API via fetch e atualiza o número sem sair da página
+  async function darReacao(id, tipo) {
+    try {
+      const resposta = await fetch(`/guitarra/${id}/reacao`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: tipo })
+      });
+      const dados = await resposta.json();
+      
+      const elLikes = document.getElementById(`likes-${id}`);
+      const elDislikes = document.getElementById(`dislikes-${id}`);
+
+      if (elLikes) elLikes.innerText = dados.likes;
+      if (elDislikes) elDislikes.innerText = dados.dislikes;
+    } catch (erro) {
+      console.error('Erro ao registrar reação:', erro);
+    }
+  }
+
+  // Busca em tempo real via API
   async function buscarGuitarrasAPI() {
     const termo = campoBusca.value.trim();
     tituloResultados.innerText = termo ? `Resultados para "${termo}" (via API)` : 'Destaques';
@@ -84,14 +104,12 @@
                   <p class="fw-bold text-success fs-5">R$ ${guitarra.preco ? guitarra.preco.toFixed(2) : '0.00'}</p>
                 </div>
                 <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
-                  <form action="/guitarra/${guitarra.id}/reacao" method="POST" class="d-inline">
-                    <input type="hidden" name="tipo" value="like">
-                    <button type="submit" class="btn btn-sm btn-outline-success">👍 ${guitarra.likes || 0}</button>
-                  </form>
-                  <form action="/guitarra/${guitarra.id}/reacao" method="POST" class="d-inline">
-                    <input type="hidden" name="tipo" value="dislike">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">👎 ${guitarra.dislikes || 0}</button>
-                  </form>
+                  <button type="button" onclick="darReacao('${guitarra.id}', 'like')" class="btn btn-sm btn-outline-success">
+                    👍 <span id="likes-${guitarra.id}">${guitarra.likes || 0}</span>
+                  </button>
+                  <button type="button" onclick="darReacao('${guitarra.id}', 'dislike')" class="btn btn-sm btn-outline-danger">
+                    👎 <span id="dislikes-${guitarra.id}">${guitarra.dislikes || 0}</span>
+                  </button>
                 </div>
               </div>
             </div>
